@@ -225,6 +225,9 @@ importers:
       mineflayer:
         specifier: ^4.26.0
         version: 4.37.1
+      mineflayer-pathfinder:
+        specifier: ^2.4.5
+        version: 2.4.5(prismarine-registry@1.12.0)
 
   artifacts/mockup-sandbox:
     devDependencies:
@@ -2347,6 +2350,9 @@ packages:
   minecraft-protocol@1.66.2:
     resolution: {integrity: sha512-keY1IY1E2AeurcekCfcXrg0TDbykGVFiMe1E4wR8QkNtQRieNwfr2xaF3g3vT9ChkwzvENqp3jxgmtFCKSUKPg==}
     engines: {node: '>=22'}
+
+  mineflayer-pathfinder@2.4.5:
+    resolution: {integrity: sha512-Jh3JnUgRLwhMh2Dugo4SPza68C41y+NPP5sdsgxRu35ydndo70i1JJGxauVWbXrpNwIxYNztUw78aFyb7icw8g==}
 
   mineflayer@4.37.1:
     resolution: {integrity: sha512-kchZCJb1znzz8ZhE0+gLQ3e2t/9xUsqUy/IM/sGfceINxi3h6KXKY9luaUEa59vnD/x0OKwYdERY4sscm0ErNQ==}
@@ -5110,13 +5116,26 @@ snapshots:
       - encoding
       - supports-color
 
+  mineflayer-pathfinder@2.4.5(prismarine-registry@1.12.0):
+    dependencies:
+      minecraft-data: 3.112.0
+      prismarine-block: 1.23.0(prismarine-registry@1.12.0)
+      prismarine-entity: 2.6.0
+      prismarine-item: 1.18.0
+      prismarine-nbt: 2.8.0
+      prismarine-physics: 1.11.1
+      vec3: 0.1.10
+    transitivePeerDependencies:
+      - prismarine-registry
+      - supports-color
+
   mineflayer@4.37.1:
     dependencies:
       minecraft-data: 3.112.0
       minecraft-protocol: 1.66.2
       mojangson: 2.0.4
       prismarine-biome: 1.4.0(prismarine-registry@1.12.0)
-      prismarine-block: 1.23.0
+      prismarine-block: 1.23.0(prismarine-registry@1.12.0)
       prismarine-chat: 1.13.0
       prismarine-chunk: 1.40.0
       prismarine-entity: 2.6.0
@@ -5384,7 +5403,7 @@ snapshots:
     dependencies:
       prismarine-registry: 1.12.0
 
-  prismarine-block@1.23.0:
+  prismarine-block@1.23.0(prismarine-registry@1.12.0):
     dependencies:
       minecraft-data: 3.112.0
       prismarine-biome: 1.4.0(prismarine-registry@1.12.0)
@@ -5393,6 +5412,7 @@ snapshots:
       prismarine-nbt: 2.8.0
       prismarine-registry: 1.12.0
     transitivePeerDependencies:
+      - prismarine-registry
       - supports-color
 
   prismarine-chat@1.13.0:
@@ -5407,7 +5427,7 @@ snapshots:
   prismarine-chunk@1.40.0:
     dependencies:
       prismarine-biome: 1.4.0(prismarine-registry@1.12.0)
-      prismarine-block: 1.23.0
+      prismarine-block: 1.23.0(prismarine-registry@1.12.0)
       prismarine-nbt: 2.8.0
       prismarine-registry: 1.12.0
       smart-buffer: 4.2.0
@@ -5456,7 +5476,7 @@ snapshots:
   prismarine-registry@1.12.0:
     dependencies:
       minecraft-data: 3.112.0
-      prismarine-block: 1.23.0
+      prismarine-block: 1.23.0(prismarine-registry@1.12.0)
       prismarine-nbt: 2.8.0
     transitivePeerDependencies:
       - supports-color

@@ -9,8 +9,9 @@
     "dev": "node --watch src/bot.js"
   },
   "dependencies": {
+    "dotenv": "^16.5.0",
     "mineflayer": "^4.26.0",
-    "dotenv": "^16.5.0"
+    "mineflayer-pathfinder": "^2.4.5"
   },
   "engines": {
     "node": ">=18.0.0"

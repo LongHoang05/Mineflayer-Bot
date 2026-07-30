@@ -1,98 +1,117 @@
-# Minecraft AFK Bot
+# Minecraft Combat Bot
 
-A configurable AFK bot for Minecraft Java Edition built with [Mineflayer](https://github.com/PrismarineJS/mineflayer).
-
----
-
-## Features
-
-- Connects to any Minecraft Java Edition server
-- Holds its position — no random movement
-- Auto-reconnects when disconnected
-- Responds to in-game chat commands
-- Fully configurable via `.env`
+Bot Minecraft Java Edition tự động chiến đấu, xây dựng bằng [Mineflayer](https://github.com/PrismarineJS/mineflayer) + [Pathfinder](https://github.com/PrismarineJS/mineflayer-pathfinder).
 
 ---
 
-## Setup
+## Tính năng
 
-### 1. Install dependencies
+| Tính năng | Mô tả |
+|---|---|
+| **PvP** | Tự động phát hiện và tấn công người chơi gần nhất |
+| **PvE** | Tự động tấn công mob thù địch (zombie, skeleton, creeper…) |
+| **Tuần tra** | Đi loanh quanh bán kính cấu hình được xung quanh điểm spawn |
+| **Đánh trả** | Tự động phản công khi bị tấn công |
+| **Pathfinder** | Di chuyển thông minh, tránh vật cản, đuổi theo mục tiêu |
+| **Auto-reconnect** | Tự kết nối lại khi bị ngắt |
+
+---
+
+## Cài đặt
+
+### 1. Cài dependencies
 
 ```bash
 pnpm --filter @workspace/minecraft-afk-bot install
 ```
 
-Or from the project root:
-
-```bash
-pnpm install
-```
-
-### 2. Create your `.env` file
-
-Copy the example configuration:
+### 2. Tạo file `.env`
 
 ```bash
 cp artifacts/minecraft-afk-bot/.env.example artifacts/minecraft-afk-bot/.env
 ```
 
-Then edit `artifacts/minecraft-afk-bot/.env` with your server details:
+Chỉnh sửa `artifacts/minecraft-afk-bot/.env`:
 
-| Variable          | Description                                      | Default     |
-|-------------------|--------------------------------------------------|-------------|
-| `MC_HOST`         | Server IP or hostname                            | `localhost` |
-| `MC_PORT`         | Server port                                      | `25565`     |
-| `MC_USERNAME`     | Bot's Minecraft username                         | `AFKBot`    |
-| `MC_VERSION`      | Minecraft version (e.g. `1.20.4`). Leave blank to auto-detect. | auto |
-| `MC_AUTH`         | `offline` for cracked servers, `microsoft` for online-mode | `offline` |
-| `RECONNECT_DELAY` | Milliseconds to wait before reconnecting         | `5000`      |
-| `AUTO_RECONNECT`  | Set to `false` to disable auto-reconnect         | `true`      |
+| Biến | Mô tả | Mặc định |
+|---|---|---|
+| `MC_HOST` | IP hoặc hostname của server | `localhost` |
+| `MC_PORT` | Cổng server | `25565` |
+| `MC_USERNAME` | Tên bot | `CombatBot` |
+| `MC_VERSION` | Phiên bản MC (vd: `1.20.4`). Để trống = tự nhận. | auto |
+| `MC_AUTH` | `offline` hoặc `microsoft` | `offline` |
+| `ATTACK_RANGE` | Tầm đánh (blocks) | `4` |
+| `PATROL_RADIUS` | Bán kính tuần tra (blocks) | `20` |
+| `ATTACK_SPEED` | Thời gian giữa mỗi cú đấm (ms) | `500` |
+| `RECONNECT_DELAY` | Chờ bao lâu trước khi kết nối lại (ms) | `5000` |
+| `AUTO_RECONNECT` | Tự kết nối lại | `true` |
 
-### 3. Run the bot
+### 3. Chạy bot
 
 ```bash
 pnpm --filter @workspace/minecraft-afk-bot start
 ```
 
-On Replit you can also use the **AFK Bot** workflow button to start it.
+Hoặc nhấn nút **AFK Bot** trên Replit.
 
 ---
 
-## In-game Commands
+## Lệnh chat trong game
 
-Any player can type these in the Minecraft chat:
+Gõ những lệnh này trong chat Minecraft để điều khiển bot:
 
-| Command              | Description                                    |
-|----------------------|------------------------------------------------|
-| `!pos`               | Shows the bot's current coordinates            |
-| `!say <message>`     | Makes the bot say something in chat            |
-| `!follow <player>`   | Bot walks toward and follows a player          |
-| `!stop`              | Safely disconnects the bot                     |
-
----
-
-## Notes
-
-### Offline vs Online mode
-- Most private/local servers run in **offline mode** → use `MC_AUTH=offline`
-- Servers like Hypixel run in **online mode** → use `MC_AUTH=microsoft` and provide a valid Microsoft account username. Mineflayer will open a browser URL for authentication on first run.
-
-### Version matching
-- The bot version must match the server. Set `MC_VERSION` explicitly if auto-detect fails (e.g. `MC_VERSION=1.20.4`).
-
-### Auto-reconnect
-- The bot reconnects automatically after kicks or crashes. Set `AUTO_RECONNECT=false` to disable this.
+| Lệnh | Tác dụng |
+|---|---|
+| `!pvp` | Bật/tắt chế độ tấn công người chơi |
+| `!pve` | Bật/tắt chế độ tấn công mob |
+| `!patrol` | Bật/tắt chế độ tuần tra loanh quanh |
+| `!attack <tên>` | Đuổi theo và tấn công người chơi cụ thể |
+| `!follow <tên>` | Đi theo người chơi (không đánh) |
+| `!pos` | Hiển thị tọa độ hiện tại của bot |
+| `!status` | Hiển thị HP, hunger và trạng thái chế độ |
+| `!say <tin nhắn>` | Bot gửi tin nhắn trong chat |
+| `!stop` | Tắt tất cả và ngắt kết nối |
+| `!help` | Xem danh sách lệnh |
 
 ---
 
-## Project Structure
+## Ví dụ sử dụng
+
+```
+# Bật PvP + tuần tra → bot tự chạy loanh quanh và tấn công người chơi
+!pvp
+!patrol
+
+# Bật PvE → bot tiêu diệt mob xung quanh
+!pve
+
+# Bật cả hai → farm mob lẫn PvP
+!pvp
+!pve
+
+# Tấn công người chơi cụ thể ngay lập tức
+!attack Steve
+```
+
+---
+
+## Ghi chú
+
+- **Offline mode**: Server cracked/local → dùng `MC_AUTH=offline`
+- **Online mode**: Server như Hypixel → dùng `MC_AUTH=microsoft` (cần tài khoản Microsoft thật)
+- Bot **không đào block** khi di chuyển (`canDig = false`) để tránh phá map
+- Bot tự **đánh trả** ngay cả khi PvP/PvE đang tắt
+
+---
+
+## Cấu trúc project
 
 ```
 artifacts/minecraft-afk-bot/
 ├── src/
-│   └── bot.js          # Main bot logic
-├── .env.example        # Configuration template
-├── .env                # Your local config (git-ignored)
+│   └── bot.js          # Logic chính
+├── .env.example        # Mẫu cấu hình
+├── .env                # Cấu hình của bạn (không commit)
 ├── package.json
 └── README.md
 ```
