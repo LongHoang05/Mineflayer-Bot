@@ -74,16 +74,18 @@ async function startViaProxy() {
     '--log-ips', 'false',
   ], { stdio: ['ignore', 'pipe', 'pipe'] });
 
+  const isQuietLog = (l) => l.includes('less than 512MB') || l.includes('newer plugin version available');
+
   viaProxyProcess.stdout.on('data', (d) => {
     const line = d.toString().trim();
-    if (line) console.log(`[ViaProxy] ${line}`);
+    if (line && !isQuietLog(line)) console.log(`[ViaProxy] ${line}`);
     if (!viaProxyReady && (line.includes('Listening on') || line.includes('started') || line.includes('Binding proxy server'))) {
       viaProxyReady = true;
     }
   });
   viaProxyProcess.stderr.on('data', (d) => {
     const line = d.toString().trim();
-    if (line) console.log(`[ViaProxy] ${line}`);
+    if (line && !isQuietLog(line)) console.log(`[ViaProxy] ${line}`);
     if (!viaProxyReady && (line.includes('Listening on') || line.includes('started') || line.includes('Binding proxy server'))) {
       viaProxyReady = true;
     }
