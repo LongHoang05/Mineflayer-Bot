@@ -14,6 +14,14 @@ COPY . .
 # Cài đặt dependencies
 RUN pnpm install
 
+# Biến môi trường mặc định cho Server Aternos
+ENV MC_HOST=CLgamingTV.aternos.me
+ENV MC_PORT=36025
+ENV MC_USERNAME=CombatBot
+ENV MC_VERSION=26.2
+ENV BOT_VERSION=1.21.5
+ENV MC_AUTH=offline
+
 # Expose port cho Render HTTP Health Check
 EXPOSE 10000
 ENV PORT=10000

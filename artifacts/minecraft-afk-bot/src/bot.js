@@ -26,8 +26,8 @@ const __dirname   = dirname(fileURLToPath(import.meta.url));
 const VIAPROXY_JAR = join(__dirname, '..', 'viaproxy', 'ViaProxy.jar');
 
 // ─── Cấu hình từ .env ────────────────────────────────────────
-const SERVER_HOST    = process.env.MC_HOST          || 'localhost';
-const SERVER_PORT    = parseInt(process.env.MC_PORT || '25565', 10);
+const SERVER_HOST    = process.env.MC_HOST          || 'CLgamingTV.aternos.me';
+const SERVER_PORT    = parseInt(process.env.MC_PORT || '36025', 10);
 const BOT_USERNAME   = process.env.MC_USERNAME      || 'CombatBot';
 const SERVER_VERSION = process.env.MC_VERSION       || '26.2';   // version server thực
 const BOT_VERSION    = process.env.BOT_VERSION      || '1.21.5'; // version bot nói chuyện với proxy
