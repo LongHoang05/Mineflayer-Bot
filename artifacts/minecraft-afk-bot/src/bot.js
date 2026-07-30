@@ -10,7 +10,8 @@
 // ============================================================
 
 import mineflayer from 'mineflayer';
-import { pathfinder, Movements, goals } from 'mineflayer-pathfinder';
+import pathfinderPkg from 'mineflayer-pathfinder';
+const { pathfinder, Movements, goals } = pathfinderPkg;
 import { config } from 'dotenv';
 
 config(); // Đọc file .env

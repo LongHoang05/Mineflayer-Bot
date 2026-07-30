@@ -38,3 +38,20 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+ATTACK_RANGE = "4"
+ATTACK_SPEED = "500"
+AUTO_RECONNECT = "true"
+AUTO_RESPAWN = "true"
+AUTO_SLEEP = "true"
+BED_SEARCH_RADIUS = "32"
+MC_AUTH = "offline"
+MC_HOST = "CLgamingTV.aternos.me"
+MC_PORT = "36025"
+MC_USERNAME = "CombatBot"
+MC_VERSION = "1.21.5"
+PATROL_RADIUS = "20"
+RECONNECT_DELAY = "5000"
