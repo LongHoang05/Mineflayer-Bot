@@ -297,6 +297,8 @@ async function tryGoToSleep() {
   } catch (e) { log(`Ngủ thất bại: ${e.message}`); return false; }
 }
 
+let lastBedWarnTime = 0;
+
 function setupAutoSleep() {
   if (!AUTO_SLEEP) return;
   bot.on('wake', () => { isSleeping = false; log('☀️  Trời sáng rồi, thức dậy!'); });
@@ -304,6 +306,9 @@ function setupAutoSleep() {
     if (!bot?.entity) return;
     const time = bot.time?.timeOfDay ?? 0;
     if (time >= SLEEP_TIME && time < WAKE_TIME && !isSleeping) {
+      const now = Date.now();
+      if (now - lastBedWarnTime < 120_000) return;
+      lastBedWarnTime = now;
       log(`🌙 Tối rồi (tick ${time}) — tìm giường...`);
       const wasPvp = pvpMode, wasPve = pveMode, wasPat = patrolMode;
       pvpMode = pveMode = patrolMode = false;
