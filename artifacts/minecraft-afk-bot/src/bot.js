@@ -120,6 +120,8 @@ async function startViaProxy() {
   log(`   ${SERVER_HOST}:${SERVER_PORT} (${SERVER_VERSION}) ← proxy ← bot (${BOT_VERSION})`);
 
   viaProxyProcess = spawn('java', [
+    '-Xms256m',
+    '-Xmx350m',
     '-jar', VIAPROXY_JAR,
     'cli',
     '--target-address',                   `${SERVER_HOST}:${SERVER_PORT}`,
