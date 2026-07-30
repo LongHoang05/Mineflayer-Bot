@@ -70,7 +70,7 @@ async function startViaProxy() {
     '--proxy-online-mode', 'false',
     '--ignore-protocol-translation-errors', 'true',
     '--suppress-client-protocol-errors', 'true',
-    '--connect-timeout', '15000',
+    '--connect-timeout', '60000',
     '--log-ips', 'false',
   ], { stdio: ['ignore', 'pipe', 'pipe'] });
 
@@ -142,9 +142,22 @@ function setupAutoEat() {
   autoEatInterval = setInterval(() => checkAndAutoEat(), 5_000);
 }
 
+let keepAlivePulseInterval = null;
+
 // ─── CHỐNG AFK THÔNG MINH (SMART ANTI-AFK) ───────────────────
 function setupAntiAFK() {
   if (antiAfkInterval) clearInterval(antiAfkInterval);
+  if (keepAlivePulseInterval) clearInterval(keepAlivePulseInterval);
+
+  // Send tiny packet pulse every 3 seconds to keep socket active 100%
+  keepAlivePulseInterval = setInterval(() => {
+    if (!bot || !bot.entity || isEating) return;
+    try {
+      bot.look(bot.entity.yaw + 0.0001, bot.entity.pitch, true);
+    } catch (_) {}
+  }, 3_000);
+
+  // Natural micro-actions every 12 - 18 seconds
   antiAfkInterval = setInterval(async () => {
     if (!bot || !bot.entity || isEating) return;
     try {
@@ -165,7 +178,7 @@ function setupAntiAFK() {
         }
       }
     } catch (_) { }
-  }, 20_000 + Math.floor(Math.random() * 15_000));
+  }, 12_000 + Math.floor(Math.random() * 6_000));
 }
 
 // ─── KHỞI TẠO BOT ─────────────────────────────────────────────
@@ -231,6 +244,7 @@ function createBot() {
 function cleanupState() {
   if (autoEatInterval) { clearInterval(autoEatInterval); autoEatInterval = null; }
   if (antiAfkInterval) { clearInterval(antiAfkInterval); antiAfkInterval = null; }
+  if (keepAlivePulseInterval) { clearInterval(keepAlivePulseInterval); keepAlivePulseInterval = null; }
 }
 
 const healthServers = [];
