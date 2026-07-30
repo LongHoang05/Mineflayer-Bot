@@ -57,10 +57,10 @@ async function startViaProxy() {
 
   viaProxyProcess = spawn('java', [
     '-XX:+UseSerialGC',
-    '-Xss128k',
-    '-XX:MaxMetaspaceSize=48m',
-    '-XX:MaxDirectMemorySize=48m',
-    '-Xms64m',
+    '-Xss256k',
+    '-XX:MaxMetaspaceSize=96m',
+    '-XX:MaxDirectMemorySize=128m',
+    '-Xms128m',
     '-Xmx256m',
     '-jar', VIAPROXY_JAR,
     'cli',
