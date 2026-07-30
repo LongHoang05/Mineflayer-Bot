@@ -1,5 +1,5 @@
 // ============================================================
-// Minecraft Pure AFK Keep-Alive Bot — Mineflayer + ViaProxy
+// Minecraft Pure AFK Keep-Alive Bot — Mineflayer + ViaProxy Fallback
 // ============================================================
 import mineflayer from 'mineflayer';
 import { config } from 'dotenv';
@@ -29,6 +29,8 @@ let viaProxyReady = false;
 let isEating = false;
 let antiAfkInterval = null;
 let autoEatInterval = null;
+let keepAlivePulseInterval = null;
+let isProxyMode = false;
 
 const ts = () => new Date().toLocaleTimeString();
 const log = (msg) => console.log(`[${ts()}] ${msg}`);
@@ -43,7 +45,7 @@ function isPortFree(port) {
   });
 }
 
-// ─── KHỞI ĐỘNG VIAPROXY ──────────────────────────────────────
+// ─── KHỞI ĐỘNG VIAPROXY (KHI CẦN) ───────────────────────────
 async function startViaProxy() {
   if (viaProxyProcess && !viaProxyProcess.killed) return;
   const free = await isPortFree(PROXY_PORT);
@@ -52,12 +54,10 @@ async function startViaProxy() {
     return;
   }
 
-  log(`🔄 Khởi động ViaProxy trên port ${PROXY_PORT}...`);
-  log(`   ${SERVER_HOST}:${SERVER_PORT} (${SERVER_VERSION}) ← proxy ← bot (${BOT_VERSION})`);
-
+  log(`🔄 Khởi động ViaProxy nhẹ trên port ${PROXY_PORT}...`);
   viaProxyProcess = spawn('java', [
     '-Xms128m',
-    '-Xmx350m',
+    '-Xmx320m',
     '-jar', VIAPROXY_JAR,
     'cli',
     '--target-address', `${SERVER_HOST}:${SERVER_PORT}`,
@@ -139,14 +139,11 @@ function setupAutoEat() {
   autoEatInterval = setInterval(() => checkAndAutoEat(), 5_000);
 }
 
-let keepAlivePulseInterval = null;
-
 // ─── CHỐNG AFK THÔNG MINH (SMART ANTI-AFK) ───────────────────
 function setupAntiAFK() {
   if (antiAfkInterval) clearInterval(antiAfkInterval);
   if (keepAlivePulseInterval) clearInterval(keepAlivePulseInterval);
 
-  // Send tiny packet pulse every 3 seconds to keep socket active 100%
   keepAlivePulseInterval = setInterval(() => {
     if (!bot || !bot.entity || isEating) return;
     try {
@@ -154,7 +151,6 @@ function setupAntiAFK() {
     } catch (_) {}
   }, 3_000);
 
-  // Natural micro-actions every 12 - 18 seconds
   antiAfkInterval = setInterval(async () => {
     if (!bot || !bot.entity || isEating) return;
     try {
@@ -178,64 +174,106 @@ function setupAntiAFK() {
   }, 12_000 + Math.floor(Math.random() * 6_000));
 }
 
-// ─── KHỞI TẠO BOT ─────────────────────────────────────────────
-function createBot() {
-  log(`🤖 Kết nối: bot → proxy(localhost:${PROXY_PORT}) → ${SERVER_HOST}:${SERVER_PORT}`);
+// ─── KHỞI TẠO BOT DUAL-ENGINE ───────────────────────────────
+function createBot(useProxy = false) {
+  isProxyMode = useProxy;
+  cleanupState();
 
-  bot = mineflayer.createBot({
+  const botOptions = useProxy ? {
     host: '127.0.0.1',
     port: PROXY_PORT,
     username: BOT_USERNAME,
     version: BOT_VERSION,
     auth: MC_AUTH,
-  });
+  } : {
+    host: SERVER_HOST,
+    port: SERVER_PORT,
+    username: BOT_USERNAME,
+    version: false,
+    auth: MC_AUTH,
+  };
+
+  log(`🤖 Kết nối ${useProxy ? 'qua ViaProxy' : 'trực tiếp (Siêu nhẹ 40MB)'}: bot → ${botOptions.host}:${botOptions.port}`);
+
+  let hasLoggedIn = false;
+
+  try {
+    bot = mineflayer.createBot(botOptions);
+  } catch (e) {
+    if (!useProxy) {
+      log(`⚠️ Kết nối trực tiếp thất bại (${e.message}). Chuyển sang ViaProxy...`);
+      connectWithViaProxy();
+      return;
+    }
+  }
+
+  bot.once('login', () => { hasLoggedIn = true; });
 
   bot.once('spawn', () => {
-    log(`✓ Đã vào thế giới Aternos tại ${fmtPos(bot.entity.position)} — Treo AFK 24/7`);
+    log(`✓ Đã vào thế giới Aternos (${useProxy ? 'ViaProxy' : 'Direct'}) tại ${fmtPos(bot.entity.position)} — Treo AFK 24/7`);
     setupAutoEat();
     setupAntiAFK();
   });
 
-  // Tự động hồi sinh khi chết
   bot.on('death', () => {
     log('💀 Bot bị chết — tự động hồi sinh sau 1 giây...');
-    setTimeout(() => { try { bot.respawn(); } catch (_) { } }, 1000);
+    setTimeout(() => { try { bot?.respawn(); } catch (_) { } }, 1000);
   });
 
-  // Chat commands đơn giản
   bot.on('chat', (username, message) => {
-    if (username === bot.username) return;
+    if (username === bot?.username) return;
     const parts = message.trim().split(/\s+/);
     const cmd = parts[0].toLowerCase();
 
     if (cmd === '!pos') {
-      bot.chat(`📍 ${fmtPos(bot.entity?.position)}`);
+      bot?.chat(`📍 ${fmtPos(bot?.entity?.position)}`);
     } else if (cmd === '!status') {
-      bot.chat(`HP:${(bot.health ?? 0).toFixed(1)}❤ Food:${bot.food ?? 0}🍗 [AFK Keep-Alive Active 24/7]`);
+      bot?.chat(`HP:${(bot?.health ?? 0).toFixed(1)}❤ Food:${bot?.food ?? 0}🍗 [AFK Active 24/7]`);
     } else if (cmd === '!say') {
       const text = parts.slice(1).join(' ');
-      if (text) bot.chat(text);
+      if (text) bot?.chat(text);
     } else if (cmd === '!help') {
-      bot.chat('Lệnh: !pos !status !say <msg>');
+      bot?.chat('Lệnh: !pos !status !say <msg>');
     }
   });
 
   bot.on('kicked', (r) => { log(`✗ Bị kick: ${r}`); cleanupState(); });
+
   bot.on('error', (e) => {
     if (e?.code === 'ECONNRESET' || e?.message?.includes('ECONNRESET')) {
       log('⚠️ Mạng Aternos ngắt kết nối tạm thời (ECONNRESET)');
     } else {
       log(`✗ Lỗi: ${e.message}`);
     }
+
+    if (!hasLoggedIn && !useProxy) {
+      log('⚠️ Kết nối trực tiếp chưa tương thích. Chuyển sang ViaProxy...');
+      cleanupState();
+      connectWithViaProxy();
+    }
   });
+
   bot.on('end', (reason) => {
     log(`✗ Mất kết nối (${reason || 'socketClosed'}). Tự kết nối lại sau ${RECONNECT_DELAY_MS / 1000}s...`);
     cleanupState();
     setTimeout(async () => {
-      try { await startViaProxy(); } catch (_) { }
-      createBot();
+      if (isProxyMode) {
+        try { await startViaProxy(); } catch (_) { }
+        createBot(true);
+      } else {
+        createBot(false);
+      }
     }, RECONNECT_DELAY_MS);
   });
+}
+
+async function connectWithViaProxy() {
+  try {
+    await startViaProxy();
+    createBot(true);
+  } catch (e) {
+    log(`❌ Lỗi ViaProxy: ${e.message}`);
+  }
 }
 
 function cleanupState() {
@@ -310,16 +348,13 @@ async function main() {
   log('══════════════════════════════════════════');
   log('   Minecraft AFK Bot 24/7 — Pure Keep-Alive');
   log('══════════════════════════════════════════');
-  log(`Server : ${SERVER_HOST}:${SERVER_PORT} (${SERVER_VERSION})`);
-  log(`Bot    : ${BOT_USERNAME} (v${BOT_VERSION} qua ViaProxy)`);
+  log(`Server : ${SERVER_HOST}:${SERVER_PORT}`);
+  log(`Bot    : ${BOT_USERNAME}`);
   log('──────────────────────────────────────────');
 
   startHealthServer();
-  try { await startViaProxy(); } catch (e) {
-    log(`❌ Lỗi ViaProxy: ${e.message}`);
-    process.exit(1);
-  }
-  createBot();
+  // Thử kết nối trực tiếp (siêu nhẹ ~40MB RAM) trước
+  createBot(false);
 }
 
 main();
