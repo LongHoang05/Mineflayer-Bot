@@ -1,17 +1,21 @@
 // ============================================================
 // Minecraft Combat Bot — Mineflayer + Pathfinder
 // ============================================================
-// Bot tự động chạy loanh quanh, tìm kiếm và tấn công
-// người chơi / mob gần nhất. Hỗ trợ PvP, PvE và tuần tra.
+// Tính năng:
+//   • PvP / PvE tự động
+//   • Tuần tra bản đồ
+//   • Tự hồi sinh khi chết
+//   • Tự tìm giường ngủ khi trời tối
+//   • Tự kết nối lại khi mất mạng
 // ============================================================
 
 import mineflayer from 'mineflayer';
 import { pathfinder, Movements, goals } from 'mineflayer-pathfinder';
 import { config } from 'dotenv';
 
-config();
+config(); // Đọc file .env
 
-// ─── Cấu hình từ .env ────────────────────────────────────────
+// ─── Cấu hình (từ .env) ──────────────────────────────────────
 const BOT_CONFIG = {
   host:     process.env.MC_HOST     || 'localhost',
   port:     parseInt(process.env.MC_PORT || '25565', 10),
@@ -22,173 +26,267 @@ const BOT_CONFIG = {
 
 const RECONNECT_DELAY_MS = parseInt(process.env.RECONNECT_DELAY || '5000', 10);
 const AUTO_RECONNECT     = process.env.AUTO_RECONNECT !== 'false';
+const AUTO_RESPAWN       = process.env.AUTO_RESPAWN   !== 'false'; // tự hồi sinh
+const AUTO_SLEEP         = process.env.AUTO_SLEEP     !== 'false'; // tự đi ngủ
 
-// Khoảng cách (blocks) để phát hiện và tấn công mục tiêu
-const ATTACK_RANGE   = parseFloat(process.env.ATTACK_RANGE   || '4');
-// Khoảng cách (blocks) bán kính tuần tra
-const PATROL_RADIUS  = parseFloat(process.env.PATROL_RADIUS  || '20');
-// Tốc độ đánh (ms giữa mỗi cú đấm)
-const ATTACK_SPEED_MS = parseInt(process.env.ATTACK_SPEED || '500', 10);
+const ATTACK_RANGE    = parseFloat(process.env.ATTACK_RANGE   || '4');
+const PATROL_RADIUS   = parseFloat(process.env.PATROL_RADIUS  || '20');
+const ATTACK_SPEED_MS = parseInt(process.env.ATTACK_SPEED     || '500', 10);
 
-// ─── Trạng thái bot ──────────────────────────────────────────
-let bot           = null;
-let pvpMode       = false;   // tấn công người chơi
-let pveMode       = false;   // tấn công mob thù địch
-let patrolMode    = false;   // tự đi loanh quanh
-let attackLoop    = null;    // setInterval cho combat
-let patrolTimeout = null;    // setTimeout cho patrol
-let spawnPos      = null;    // vị trí spawn ban đầu
+// Khoảng cách tối đa để tìm giường (blocks)
+const BED_SEARCH_RADIUS = parseInt(process.env.BED_SEARCH_RADIUS || '32', 10);
 
-// Danh sách mob thù địch thường gặp
+// Thời gian Minecraft (ticks):
+//   0     = bình minh
+//   6000  = giữa trưa
+//   12000 = hoàng hôn — bắt đầu tối
+//   13000 = có thể ngủ
+//   18000 = nửa đêm
+//   24000 = bình minh mới
+const SLEEP_TIME  = 12542; // tick tối thiểu để leo lên giường
+const WAKE_TIME   = 23460; // tick bot tự thức nếu không ngủ được
+
+// ─── Danh sách mob thù ───────────────────────────────────────
 const HOSTILE_MOBS = new Set([
-  'zombie', 'skeleton', 'spider', 'creeper', 'enderman',
-  'witch', 'pillager', 'vindicator', 'ravager', 'blaze',
-  'ghast', 'zombie_pigman', 'piglin_brute', 'hoglin',
-  'drowned', 'husk', 'stray', 'phantom', 'slime',
-  'magma_cube', 'wither_skeleton', 'guardian', 'elder_guardian',
+  'zombie', 'skeleton', 'spider', 'cave_spider', 'creeper', 'enderman',
+  'witch', 'pillager', 'vindicator', 'ravager', 'blaze', 'ghast',
+  'zombie_pigman', 'zombified_piglin', 'piglin_brute', 'hoglin',
+  'drowned', 'husk', 'stray', 'phantom', 'slime', 'magma_cube',
+  'wither_skeleton', 'guardian', 'elder_guardian', 'silverfish',
+  'endermite', 'shulker', 'vex', 'evoker',
 ]);
 
-// ─── Helpers ─────────────────────────────────────────────────
+// ─── Trạng thái ──────────────────────────────────────────────
+let bot           = null;
+let pvpMode       = false;
+let pveMode       = false;
+let patrolMode    = false;
+let attackLoop    = null;
+let patrolTimeout = null;
+let sleepCheckInterval = null;
+let isSleeping    = false;
+let spawnPos      = null;
 
-function ts()       { return new Date().toLocaleTimeString(); }
-function log(msg)   { console.log(`[${ts()}] ${msg}`); }
+// ─── Helpers ─────────────────────────────────────────────────
+function ts()     { return new Date().toLocaleTimeString(); }
+function log(msg) { console.log(`[${ts()}] ${msg}`); }
 
 function statusMsg() {
-  const modes = [];
-  if (pvpMode)    modes.push('PvP✓');
-  if (pveMode)    modes.push('PvE✓');
-  if (patrolMode) modes.push('Tuần tra✓');
-  return modes.length ? `[${modes.join(' | ')}]` : '[AFK]';
+  const parts = [];
+  if (pvpMode)    parts.push('PvP✓');
+  if (pveMode)    parts.push('PvE✓');
+  if (patrolMode) parts.push('Patrol✓');
+  if (isSleeping) parts.push('💤Ngủ');
+  return parts.length ? `[${parts.join(' | ')}]` : '[Standby]';
 }
 
 function fmtPos(pos) {
-  if (!pos) return '(không biết)';
+  if (!pos) return '(unknown)';
   return `X:${pos.x.toFixed(1)} Y:${pos.y.toFixed(1)} Z:${pos.z.toFixed(1)}`;
 }
 
-// ─── Tìm mục tiêu gần nhất ───────────────────────────────────
-
-/**
- * Trả về entity gần nhất phù hợp với chế độ hiện tại.
- * PvP → người chơi gần nhất (trừ bot mình)
- * PvE → mob thù địch gần nhất
- */
+// ─── TÌM MỤC TIÊU ────────────────────────────────────────────
 function findTarget() {
-  if (!bot || !bot.entity) return null;
+  if (!bot?.entity) return null;
   const myPos = bot.entity.position;
-  let closest = null;
-  let closestDist = Infinity;
+  let closest = null, closestDist = Infinity;
 
   for (const entity of Object.values(bot.entities)) {
-    if (!entity || !entity.position) continue;
+    if (!entity?.position) continue;
     if (entity.id === bot.entity.id) continue;
-
     const dist = myPos.distanceTo(entity.position);
-    if (dist > ATTACK_RANGE * 6) continue; // bỏ qua nếu quá xa
-
+    if (dist > ATTACK_RANGE * 6) continue;
     const isPlayer = entity.type === 'player' && entity.username !== bot.username;
     const isMob    = entity.type === 'mob' && HOSTILE_MOBS.has(entity.name);
-
     if ((pvpMode && isPlayer) || (pveMode && isMob)) {
-      if (dist < closestDist) {
-        closestDist = dist;
-        closest = entity;
-      }
+      if (dist < closestDist) { closestDist = dist; closest = entity; }
     }
   }
   return closest;
 }
 
-// ─── Vòng lặp chiến đấu ──────────────────────────────────────
+function findNearestAggressor() {
+  if (!bot?.entity) return null;
+  const myPos = bot.entity.position;
+  let closest = null, closestDist = Infinity;
+  for (const entity of Object.values(bot.entities)) {
+    if (!entity?.position || entity.id === bot.entity.id) continue;
+    const isEnemy =
+      (entity.type === 'player' && entity.username !== bot.username) ||
+      (entity.type === 'mob'    && HOSTILE_MOBS.has(entity.name));
+    if (!isEnemy) continue;
+    const dist = myPos.distanceTo(entity.position);
+    if (dist < closestDist && dist < ATTACK_RANGE * 2) {
+      closestDist = dist; closest = entity;
+    }
+  }
+  return closest;
+}
 
+// ─── VÒNG LẶP CHIẾN ĐẤU ─────────────────────────────────────
 function startAttackLoop() {
-  if (attackLoop) return; // đã chạy rồi
-
+  if (attackLoop) return;
   attackLoop = setInterval(async () => {
-    if (!bot || !bot.entity) return;
+    if (!bot?.entity || isSleeping) return;
     if (!pvpMode && !pveMode) return;
-
     const target = findTarget();
     if (!target) return;
-
     const dist = bot.entity.position.distanceTo(target.position);
-
-    // Nhìn về phía mục tiêu
     await bot.lookAt(target.position.offset(0, target.height ?? 1.6, 0));
-
     if (dist <= ATTACK_RANGE) {
-      // Trong tầm → ĐÁNH
       bot.attack(target);
       const name = target.username || target.name || target.type;
-      log(`⚔  Đánh ${name} (cách ${dist.toFixed(1)} blocks)`);
+      log(`⚔  Đánh ${name} (${dist.toFixed(1)} blocks)`);
     } else {
-      // Ngoài tầm → TIẾN ĐẾN
-      try {
-        const goal = new goals.GoalFollow(target, ATTACK_RANGE - 1);
-        bot.pathfinder.setGoal(goal, true);
-      } catch (_) { /* pathfinder chưa sẵn sàng */ }
+      try { bot.pathfinder.setGoal(new goals.GoalFollow(target, ATTACK_RANGE - 1), true); }
+      catch (_) {}
     }
   }, ATTACK_SPEED_MS);
 }
 
 function stopAttackLoop() {
-  if (attackLoop) {
-    clearInterval(attackLoop);
-    attackLoop = null;
-  }
-  // Dừng di chuyển
+  if (attackLoop) { clearInterval(attackLoop); attackLoop = null; }
   try { bot.pathfinder.stop(); } catch (_) {}
 }
 
-// ─── Chế độ tuần tra ─────────────────────────────────────────
-
+// ─── TUẦN TRA ────────────────────────────────────────────────
 function scheduleNextPatrol() {
   if (patrolTimeout) clearTimeout(patrolTimeout);
-  // Nghỉ 3-8 giây giữa các bước tuần tra
-  const delay = 3000 + Math.random() * 5000;
-  patrolTimeout = setTimeout(doPatrolStep, delay);
+  patrolTimeout = setTimeout(doPatrolStep, 3000 + Math.random() * 5000);
 }
 
 function doPatrolStep() {
-  if (!patrolMode || !bot || !bot.entity) return;
-  if ((pvpMode || pveMode) && findTarget()) {
-    // Có mục tiêu → bỏ qua bước tuần tra, thử lại sau
-    scheduleNextPatrol();
-    return;
-  }
-
-  // Chọn điểm ngẫu nhiên gần vị trí spawn
-  const base = spawnPos || bot.entity.position;
+  if (!patrolMode || !bot?.entity || isSleeping) return;
+  if ((pvpMode || pveMode) && findTarget()) { scheduleNextPatrol(); return; }
+  const base  = spawnPos || bot.entity.position;
   const angle = Math.random() * 2 * Math.PI;
   const r     = PATROL_RADIUS * (0.4 + Math.random() * 0.6);
-  const dest  = base.offset(
-    Math.cos(angle) * r,
-    0,
-    Math.sin(angle) * r
-  );
-
+  const dest  = base.offset(Math.cos(angle) * r, 0, Math.sin(angle) * r);
   log(`🗺  Tuần tra → ${fmtPos(dest)}`);
-
-  try {
-    bot.pathfinder.setGoal(new goals.GoalXZ(dest.x, dest.z));
-  } catch (_) {}
-
+  try { bot.pathfinder.setGoal(new goals.GoalXZ(dest.x, dest.z)); } catch (_) {}
   scheduleNextPatrol();
 }
 
 function stopPatrol() {
   patrolMode = false;
-  if (patrolTimeout) {
-    clearTimeout(patrolTimeout);
-    patrolTimeout = null;
-  }
+  if (patrolTimeout) { clearTimeout(patrolTimeout); patrolTimeout = null; }
   try { bot.pathfinder.stop(); } catch (_) {}
 }
 
-// ─── Khởi tạo bot ────────────────────────────────────────────
+// ─── TỰ HỒI SINH ─────────────────────────────────────────────
+function setupAutoRespawn() {
+  bot.on('death', () => {
+    log('💀 Bot đã chết!');
+    isSleeping = false;
+    if (AUTO_RESPAWN) {
+      log('↺  Đang hồi sinh...');
+      setTimeout(() => {
+        try { bot.respawn(); } catch (e) { log(`Lỗi hồi sinh: ${e.message}`); }
+      }, 1000);
+    }
+  });
 
+  // Sau khi hồi sinh, spawn lại bình thường
+  bot.on('spawn', () => {
+    isSleeping = false;
+  });
+}
+
+// ─── TỰ NGỦ KHI TỐI ─────────────────────────────────────────
+
+/**
+ * Tìm block giường gần nhất trong bán kính BED_SEARCH_RADIUS.
+ * Mineflayer dùng tên block kết thúc bằng '_bed'.
+ */
+function findNearestBed() {
+  if (!bot?.entity) return null;
+  const pos = bot.entity.position;
+
+  // Lấy tất cả block trong bán kính rồi lọc theo tên
+  const bedBlock = bot.findBlock({
+    matching: (block) => block && block.name && block.name.endsWith('_bed'),
+    maxDistance: BED_SEARCH_RADIUS,
+    count: 1,
+  });
+
+  return bedBlock || null;
+}
+
+/**
+ * Cố gắng đến giường và ngủ.
+ * Trả về true nếu thành công.
+ */
+async function tryGoToSleep() {
+  if (!bot?.entity || isSleeping) return false;
+
+  const bed = findNearestBed();
+  if (!bed) {
+    log('🛏  Không tìm thấy giường trong bán kính ' + BED_SEARCH_RADIUS + ' blocks.');
+    return false;
+  }
+
+  log(`🛏  Tìm thấy giường tại ${fmtPos(bed.position)} — đang đến...`);
+
+  // Di chuyển đến gần giường
+  try {
+    await bot.pathfinder.goto(new goals.GoalNear(bed.position.x, bed.position.y, bed.position.z, 2));
+  } catch (e) {
+    log(`Không đến được giường: ${e.message}`);
+    return false;
+  }
+
+  // Thử leo lên giường
+  try {
+    await bot.sleep(bed);
+    isSleeping = true;
+    log('💤 Đang ngủ...');
+    return true;
+  } catch (e) {
+    log(`Không ngủ được: ${e.message}`);
+    return false;
+  }
+}
+
+function setupAutoSleep() {
+  if (!AUTO_SLEEP) return;
+
+  // Lắng nghe event thức dậy
+  bot.on('wake', () => {
+    isSleeping = false;
+    log('☀️  Đã thức dậy — trời sáng rồi!');
+  });
+
+  // Kiểm tra giờ giấc mỗi 10 giây (game time thay đổi liên tục)
+  sleepCheckInterval = setInterval(async () => {
+    if (!bot?.entity) return;
+    const time = bot.time?.timeOfDay ?? 0;
+
+    // Đến giờ ngủ và chưa ngủ
+    if (time >= SLEEP_TIME && time < WAKE_TIME && !isSleeping) {
+      log(`🌙 Trời tối (tick ${time}) — tìm giường...`);
+      // Tạm dừng combat/patrol để đi ngủ
+      const wasPvp    = pvpMode;
+      const wasPve    = pveMode;
+      const wasPatrol = patrolMode;
+      pvpMode = pveMode = patrolMode = false;
+      try { bot.pathfinder.stop(); } catch (_) {}
+
+      const slept = await tryGoToSleep();
+
+      // Nếu không ngủ được, khôi phục lại chế độ cũ
+      if (!slept) {
+        pvpMode    = wasPvp;
+        pveMode    = wasPve;
+        patrolMode = wasPatrol;
+        if (patrolMode) doPatrolStep();
+      }
+    }
+  }, 10_000);
+}
+
+// ─── TẠO BOT ─────────────────────────────────────────────────
 function createBot() {
-  log(`Đang kết nối đến ${BOT_CONFIG.host}:${BOT_CONFIG.port} với tên "${BOT_CONFIG.username}"...`);
+  log(`Đang kết nối → ${BOT_CONFIG.host}:${BOT_CONFIG.port} (${BOT_CONFIG.username})`);
 
   bot = mineflayer.createBot({
     host:     BOT_CONFIG.host,
@@ -198,22 +296,25 @@ function createBot() {
     auth:     BOT_CONFIG.auth,
   });
 
-  // Nạp plugin pathfinder
   bot.loadPlugin(pathfinder);
 
   // ── Spawn ──────────────────────────────────────────────────
   bot.once('spawn', () => {
-    spawnPos = bot.entity.position.clone();
+    spawnPos  = bot.entity.position.clone();
+    isSleeping = false;
+
+    // Cấu hình di chuyển
+    const move = new Movements(bot);
+    move.canDig              = false;
+    move.allow1by1towers     = false;
+    move.allowFreeMotion     = false;
+    bot.pathfinder.setMovements(move);
+
     log(`✓ Đã vào thế giới tại ${fmtPos(spawnPos)}`);
-    log('Bot sẵn sàng! Dùng chat: !pvp, !pve, !patrol, !attack, !stop, !status');
+    log('Sẵn sàng! Gõ !help trong chat để xem lệnh.');
 
-    // Cấu hình pathfinder
-    const defaultMove = new Movements(bot);
-    defaultMove.canDig   = false; // không đào block
-    defaultMove.allow1by1towers = false;
-    bot.pathfinder.setMovements(defaultMove);
-
-    // Bắt đầu vòng lặp combat (idle cho đến khi bật mode)
+    setupAutoRespawn();
+    setupAutoSleep();
     startAttackLoop();
   });
 
@@ -225,195 +326,140 @@ function createBot() {
     const parts = message.trim().split(/\s+/);
     const cmd   = parts[0].toLowerCase();
 
-    // ── !pvp ────────────────────────────────────────────────
     if (cmd === '!pvp') {
       pvpMode = !pvpMode;
-      const state = pvpMode ? 'BẬT' : 'TẮT';
-      bot.chat(`PvP ${state}! ${statusMsg()}`);
-      log(`PvP → ${state}`);
-    }
+      bot.chat(`PvP ${pvpMode ? 'BẬT ⚔' : 'TẮT'} ${statusMsg()}`);
 
-    // ── !pve ────────────────────────────────────────────────
-    else if (cmd === '!pve') {
+    } else if (cmd === '!pve') {
       pveMode = !pveMode;
-      const state = pveMode ? 'BẬT' : 'TẮT';
-      bot.chat(`PvE ${state}! ${statusMsg()}`);
-      log(`PvE → ${state}`);
-    }
+      bot.chat(`PvE ${pveMode ? 'BẬT 🗡' : 'TẮT'} ${statusMsg()}`);
 
-    // ── !patrol ─────────────────────────────────────────────
-    else if (cmd === '!patrol') {
+    } else if (cmd === '!patrol') {
       if (patrolMode) {
         stopPatrol();
-        bot.chat(`Đã dừng tuần tra. ${statusMsg()}`);
-        log('Patrol → TẮT');
+        bot.chat(`Dừng tuần tra. ${statusMsg()}`);
       } else {
         patrolMode = true;
-        bot.chat(`Bắt đầu tuần tra bán kính ${PATROL_RADIUS} blocks! ${statusMsg()}`);
-        log('Patrol → BẬT');
+        bot.chat(`Bắt đầu tuần tra! ${statusMsg()}`);
         doPatrolStep();
       }
-    }
 
-    // ── !attack <player> — tấn công người cụ thể ────────────
-    else if (cmd === '!attack') {
-      const targetName = parts[1];
-      if (!targetName) { bot.chat('Dùng: !attack <tên người chơi>'); return; }
-
-      const player = bot.players[targetName];
-      if (!player || !player.entity) {
-        bot.chat(`Không tìm thấy "${targetName}" gần đây.`);
-        return;
-      }
-
+    } else if (cmd === '!attack') {
+      const name = parts[1];
+      if (!name) { bot.chat('Dùng: !attack <tên người chơi>'); return; }
+      const player = bot.players[name];
+      if (!player?.entity) { bot.chat(`Không tìm thấy "${name}".`); return; }
       try {
         bot.pathfinder.setGoal(new goals.GoalFollow(player.entity, ATTACK_RANGE - 1), true);
-        bot.chat(`Đang đuổi theo và tấn công ${targetName}!`);
-        log(`Manual attack → ${targetName}`);
-      } catch (e) {
-        bot.chat(`Lỗi: ${e.message}`);
-      }
-    }
+        bot.chat(`Đang đuổi đánh ${name}! ⚔`);
+      } catch (e) { bot.chat(`Lỗi: ${e.message}`); }
 
-    // ── !pos ────────────────────────────────────────────────
-    else if (cmd === '!pos') {
-      bot.chat(`Vị trí của mình: ${fmtPos(bot.entity.position)}`);
-    }
+    } else if (cmd === '!follow') {
+      const name = parts[1];
+      if (!name) { bot.chat('Dùng: !follow <tên>'); return; }
+      const player = bot.players[name];
+      if (!player?.entity) { bot.chat(`Không tìm thấy "${name}".`); return; }
+      bot.pathfinder.setGoal(new goals.GoalFollow(player.entity, 2), true);
+      bot.chat(`Đang theo ${name}!`);
 
-    // ── !status ─────────────────────────────────────────────
-    else if (cmd === '!status') {
-      const hp  = bot.health?.toFixed(1) ?? '?';
-      const food = bot.food ?? '?';
-      bot.chat(`HP:${hp} | Food:${food} | ${statusMsg()} | ${fmtPos(bot.entity.position)}`);
-    }
+    } else if (cmd === '!sleep') {
+      // Ngủ thủ công
+      const slept = await tryGoToSleep();
+      if (!slept) bot.chat('Không tìm thấy giường hoặc chưa đến giờ ngủ!');
 
-    // ── !say <tin nhắn> ─────────────────────────────────────
-    else if (cmd === '!say') {
+    } else if (cmd === '!wake') {
+      if (!isSleeping) { bot.chat('Mình không đang ngủ.'); return; }
+      try { await bot.wake(); bot.chat('Đã thức dậy!'); }
+      catch (e) { bot.chat(`Lỗi: ${e.message}`); }
+
+    } else if (cmd === '!pos') {
+      bot.chat(`📍 ${fmtPos(bot.entity.position)}`);
+
+    } else if (cmd === '!status') {
+      const hp   = (bot.health ?? 0).toFixed(1);
+      const food = bot.food ?? 0;
+      const time = bot.time?.timeOfDay ?? 0;
+      const tod  = time < 12000 ? '☀️ Ban ngày' : '🌙 Ban đêm';
+      bot.chat(`HP:${hp}❤ | Food:${food}🍗 | ${tod}(${time}) | ${statusMsg()}`);
+
+    } else if (cmd === '!say') {
       const text = parts.slice(1).join(' ');
       if (!text) { bot.chat('Dùng: !say <tin nhắn>'); return; }
       bot.chat(text);
-    }
 
-    // ── !follow <player> ────────────────────────────────────
-    else if (cmd === '!follow') {
-      const playerName = parts[1];
-      if (!playerName) { bot.chat('Dùng: !follow <tên người chơi>'); return; }
-      const player = bot.players[playerName];
-      if (!player || !player.entity) {
-        bot.chat(`Không tìm thấy "${playerName}".`);
-        return;
-      }
-      bot.pathfinder.setGoal(new goals.GoalFollow(player.entity, 2), true);
-      bot.chat(`Đang theo ${playerName}!`);
-    }
-
-    // ── !stop ───────────────────────────────────────────────
-    else if (cmd === '!stop') {
-      stopAttackLoop();
-      stopPatrol();
-      pvpMode = false;
-      pveMode = false;
-      bot.chat('Đã tắt tất cả chế độ. Tạm biệt!');
-      log('Stop command → thoát.');
+    } else if (cmd === '!stop') {
+      stopAttackLoop(); stopPatrol();
+      pvpMode = pveMode = false;
+      bot.chat('Tắt hết rồi, tạm biệt! 👋');
       setTimeout(() => { bot.quit('stop'); process.exit(0); }, 500);
-    }
 
-    // ── !help ───────────────────────────────────────────────
-    else if (cmd === '!help') {
-      bot.chat('Lệnh: !pvp !pve !patrol !attack <tên> !follow <tên> !pos !status !say <msg> !stop');
+    } else if (cmd === '!help') {
+      bot.chat(
+        '!pvp !pve !patrol !attack<tên> !follow<tên> ' +
+        '!sleep !wake !pos !status !say<msg> !stop'
+      );
     }
   });
 
-  // ── Bị tấn công → đánh trả ────────────────────────────────
+  // ── Đánh trả khi bị tấn công ──────────────────────────────
   bot.on('entityHurt', (entity) => {
-    if (entity !== bot.entity) return;
-    // Tìm kẻ gây sát thương (entity gần nhất)
+    if (entity !== bot.entity || isSleeping) return;
     const attacker = findNearestAggressor();
     if (!attacker) return;
     const name = attacker.username || attacker.name || 'kẻ tấn công';
     log(`💢 Bị tấn công bởi ${name} → đánh trả!`);
-    try {
-      bot.pathfinder.setGoal(new goals.GoalFollow(attacker, ATTACK_RANGE - 1), true);
-    } catch (_) {}
+    try { bot.pathfinder.setGoal(new goals.GoalFollow(attacker, ATTACK_RANGE - 1), true); }
+    catch (_) {}
     bot.lookAt(attacker.position.offset(0, attacker.height ?? 1.6, 0));
     bot.attack(attacker);
   });
 
-  // ── Kicked / lỗi / ngắt kết nối ──────────────────────────
-  bot.on('kicked', (reason) => {
-    log(`✗ Bị kick: ${reason}`);
-    cleanupState();
+  // ── Rơi xuống hố ──────────────────────────────────────────
+  bot.on('move', () => {
+    if (bot?.entity?.position?.y < -60) {
+      log('⚠  Y < -60, dừng di chuyển tránh rơi!');
+      try { bot.pathfinder.stop(); } catch (_) {}
+    }
   });
 
-  bot.on('error', (err) => {
-    log(`✗ Lỗi: ${err.message}`);
-  });
-
+  // ── Kick / lỗi / mất kết nối ──────────────────────────────
+  bot.on('kicked', (reason) => log(`✗ Bị kick: ${reason}`));
+  bot.on('error',  (err)    => log(`✗ Lỗi: ${err.message}`));
   bot.on('end', (reason) => {
     log(`✗ Mất kết nối (${reason || 'không rõ'}).`);
     cleanupState();
     if (AUTO_RECONNECT) {
       log(`↻  Kết nối lại sau ${RECONNECT_DELAY_MS / 1000}s...`);
       setTimeout(createBot, RECONNECT_DELAY_MS);
-    } else {
-      process.exit(0);
-    }
-  });
-
-  // ── Phòng thủ khỏi vực thẳm ──────────────────────────────
-  // Dừng nếu sắp rơi xuống hố sâu
-  bot.on('move', () => {
-    if (!bot.entity) return;
-    if (bot.entity.position.y < -60) {
-      log('⚠  Y < -60, có thể đang rơi → dừng di chuyển');
-      try { bot.pathfinder.stop(); } catch (_) {}
-    }
+    } else { process.exit(0); }
   });
 }
 
-// ─── Tìm kẻ tấn công gần nhất ───────────────────────────────
-function findNearestAggressor() {
-  if (!bot || !bot.entity) return null;
-  const myPos = bot.entity.position;
-  let closest = null;
-  let closestDist = Infinity;
-
-  for (const entity of Object.values(bot.entities)) {
-    if (!entity?.position) continue;
-    if (entity.id === bot.entity.id) continue;
-    const isEnemy =
-      (entity.type === 'player' && entity.username !== bot.username) ||
-      (entity.type === 'mob' && HOSTILE_MOBS.has(entity.name));
-    if (!isEnemy) continue;
-    const dist = myPos.distanceTo(entity.position);
-    if (dist < closestDist && dist < ATTACK_RANGE * 2) {
-      closestDist = dist;
-      closest = entity;
-    }
-  }
-  return closest;
-}
-
-// ─── Dọn dẹp state khi ngắt kết nối ─────────────────────────
+// ─── Dọn dẹp state ───────────────────────────────────────────
 function cleanupState() {
-  stopAttackLoop();
-  if (patrolTimeout) { clearTimeout(patrolTimeout); patrolTimeout = null; }
-  pvpMode = pveMode = patrolMode = false;
+  stopAttackLoop(); stopPatrol();
+  pvpMode = pveMode = patrolMode = isSleeping = false;
+  if (sleepCheckInterval) { clearInterval(sleepCheckInterval); sleepCheckInterval = null; }
 }
 
-// ─── Thoát nhẹ nhàng ─────────────────────────────────────────
-function shutdown(signal) {
-  log(`Nhận ${signal}. Đang ngắt kết nối...`);
+// ─── Thoát an toàn ───────────────────────────────────────────
+function shutdown(sig) {
+  log(`${sig} → đang thoát...`);
   cleanupState();
   try { bot?.quit('shutdown'); } catch (_) {}
   process.exit(0);
 }
-
 process.on('SIGINT',  () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 // ─── Khởi động ───────────────────────────────────────────────
-log('=== Minecraft Combat Bot đang khởi động ===');
-log(`Config: ${BOT_CONFIG.host}:${BOT_CONFIG.port} | user=${BOT_CONFIG.username} | version=${BOT_CONFIG.version || 'auto'}`);
-log('Lệnh chat: !pvp | !pve | !patrol | !attack <tên> | !follow <tên> | !pos | !status | !say | !stop | !help');
+log('══════════════════════════════════════');
+log('   Minecraft Combat Bot — Khởi động   ');
+log('══════════════════════════════════════');
+log(`Server  : ${BOT_CONFIG.host}:${BOT_CONFIG.port}`);
+log(`Username: ${BOT_CONFIG.username}`);
+log(`Version : ${BOT_CONFIG.version || 'auto-detect'}`);
+log(`Auth    : ${BOT_CONFIG.auth}`);
+log(`AutoRespawn: ${AUTO_RESPAWN} | AutoSleep: ${AUTO_SLEEP}`);
+log('──────────────────────────────────────');
 createBot();
