@@ -140,14 +140,14 @@ async function startViaProxy() {
     const line = d.toString().trim();
     if (line) console.log(`[ViaProxy] ${line}`);
     // Phát hiện khi ViaProxy sẵn sàng nhận kết nối
-    if (!viaProxyReady && (line.includes('Listening on') || line.includes('started'))) {
+    if (!viaProxyReady && (line.includes('Listening on') || line.includes('started') || line.includes('Binding proxy server'))) {
       viaProxyReady = true;
     }
   });
   viaProxyProcess.stderr.on('data', (d) => {
     const line = d.toString().trim();
     if (line) console.log(`[ViaProxy] ${line}`);
-    if (!viaProxyReady && (line.includes('Listening on') || line.includes('started'))) {
+    if (!viaProxyReady && (line.includes('Listening on') || line.includes('started') || line.includes('Binding proxy server'))) {
       viaProxyReady = true;
     }
   });
@@ -157,7 +157,7 @@ async function startViaProxy() {
     viaProxyProcess = null;
   });
 
-  // Chờ ViaProxy sẵn sàng (tối đa 30 giây)
+  // Chờ ViaProxy sẵn sàng (tối đa 90 giây cho cloud cold start)
   await new Promise((resolve, reject) => {
     const start    = Date.now();
     const interval = setInterval(() => {
@@ -166,9 +166,9 @@ async function startViaProxy() {
       isPortFree(PROXY_PORT).then((free) => {
         if (!free) { viaProxyReady = true; clearInterval(interval); resolve(); }
       });
-      if (Date.now() - start > 30000) {
+      if (Date.now() - start > 90000) {
         clearInterval(interval);
-        reject(new Error('ViaProxy khởi động quá 30 giây.'));
+        reject(new Error('ViaProxy khởi động quá 90 giây.'));
       }
     }, 500);
   });
