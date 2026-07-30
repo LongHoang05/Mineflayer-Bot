@@ -15,6 +15,7 @@ import { spawn }   from 'child_process';
 import { createServer } from 'net';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import http from 'http';
 
 const { pathfinder, Movements, goals } = pathfinderPkg;
 
@@ -67,7 +68,11 @@ let patrolMode         = false;
 let attackLoop         = null;
 let patrolTimeout      = null;
 let sleepCheckInterval = null;
+let autoEatInterval    = null;
+let autoArmorInterval  = null;
+let antiAfkInterval    = null;
 let isSleeping         = false;
+let isEating           = false;
 let spawnPos           = null;
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -307,6 +312,125 @@ function setupAutoSleep() {
   }, 10_000);
 }
 
+// ─── TỰ ĐỘNG ĂN (AUTO-EAT) ────────────────────────────────────
+const EDIBLE_FOODS = new Set([
+  'cooked_beef', 'cooked_porkchop', 'cooked_mutton', 'cooked_chicken',
+  'cooked_rabbit', 'cooked_cod', 'cooked_salmon', 'baked_potato',
+  'bread', 'golden_apple', 'golden_carrot', 'apple', 'carrot',
+  'melon_slice', 'sweet_berries', 'glow_berries', 'steak'
+]);
+
+async function checkAndAutoEat() {
+  if (!bot || !bot.entity || isSleeping || isEating) return;
+  const hunger = bot.food ?? 20;
+  if (hunger >= 16) return;
+
+  const foodItem = bot.inventory.items().find(item => EDIBLE_FOODS.has(item.name));
+  if (!foodItem) return;
+
+  try {
+    isEating = true;
+    log(`🍖 Đang tự động ăn ${foodItem.name} (Hunger: ${hunger}/20)...`);
+    await bot.equip(foodItem, 'hand');
+    await bot.consume();
+    log(`✓ Đã ăn xong ${foodItem.name} (Hunger hiện tại: ${bot.food}/20)`);
+  } catch (err) {
+    log(`⚠️ Lỗi khi tự ăn: ${err.message}`);
+  } finally {
+    isEating = false;
+  }
+}
+
+function setupAutoEat() {
+  if (autoEatInterval) clearInterval(autoEatInterval);
+  autoEatInterval = setInterval(() => {
+    checkAndAutoEat();
+  }, 4_000);
+}
+
+// ─── TỰ ĐỘNG MẶC GIÁP & CẦM TOTEM/KHIÊN (AUTO-ARMOR & OFFHAND) 
+const ARMOR_TIERS = {
+  head: ['netherite_helmet', 'diamond_helmet', 'iron_helmet', 'golden_helmet', 'chainmail_helmet', 'leather_helmet'],
+  torso: ['netherite_chestplate', 'diamond_chestplate', 'iron_chestplate', 'golden_chestplate', 'chainmail_chestplate', 'leather_chestplate'],
+  legs: ['netherite_leggings', 'diamond_leggings', 'iron_leggings', 'golden_leggings', 'chainmail_leggings', 'leather_leggings'],
+  feet: ['netherite_boots', 'diamond_boots', 'iron_boots', 'golden_boots', 'chainmail_boots', 'leather_boots']
+};
+
+async function checkAndEquipArmor() {
+  if (!bot || !bot.entity || isSleeping || isEating) return;
+  const items = bot.inventory.items();
+
+  for (const [destSlot, tierList] of Object.entries(ARMOR_TIERS)) {
+    const equipped = bot.inventory.slots[bot.getEquipmentDestSlot(destSlot)];
+    let currentRank = equipped ? tierList.indexOf(equipped.name) : -1;
+
+    for (let i = 0; i < tierList.length; i++) {
+      const armorName = tierList[i];
+      if (currentRank !== -1 && currentRank <= i) break;
+
+      const candidate = items.find(item => item.name === armorName);
+      if (candidate) {
+        try {
+          log(`🛡️ Tự động trang bị ${candidate.name}...`);
+          await bot.equip(candidate, destSlot);
+        } catch (_) {}
+        break;
+      }
+    }
+  }
+
+  // Tự động cầm Totem of Undying hoặc Khiên ở tay phụ (offhand)
+  const offhandSlot = 45;
+  const currentOffhand = bot.inventory.slots[offhandSlot];
+  if (!currentOffhand || (currentOffhand.name !== 'totem_of_undying' && currentOffhand.name !== 'shield')) {
+    const totem = items.find(i => i.name === 'totem_of_undying');
+    const shield = items.find(i => i.name === 'shield');
+    const bestOffhand = totem || shield;
+
+    if (bestOffhand) {
+      try {
+        log(`🛡️ Cầm ${bestOffhand.name} ở tay phụ (offhand)...`);
+        await bot.equip(bestOffhand, 'off-hand');
+      } catch (_) {}
+    }
+  }
+}
+
+function setupAutoArmor() {
+  if (autoArmorInterval) clearInterval(autoArmorInterval);
+  autoArmorInterval = setInterval(() => {
+    checkAndEquipArmor();
+  }, 8_000);
+}
+
+// ─── CHỐNG AFK THÔNG MINH (SMART ANTI-AFK) ───────────────────
+function setupAntiAFK() {
+  if (antiAfkInterval) clearInterval(antiAfkInterval);
+  antiAfkInterval = setInterval(async () => {
+    if (!bot || !bot.entity || isSleeping || isEating) return;
+    if (patrolMode || pvpMode || pveMode) return;
+
+    try {
+      const actionType = Math.floor(Math.random() * 3);
+      if (actionType === 0) {
+        const yawShift = (Math.random() - 0.5) * 0.8;
+        const pitchShift = (Math.random() - 0.5) * 0.4;
+        await bot.look(bot.entity.yaw + yawShift, bot.entity.pitch + pitchShift, true);
+      } else if (actionType === 1) {
+        bot.swingArm('hand');
+      } else if (actionType === 2) {
+        if (Math.random() > 0.5) {
+          bot.setControlState('jump', true);
+          setTimeout(() => { try { bot.setControlState('jump', false); } catch (_) {} }, 150);
+        } else {
+          bot.setControlState('sneak', true);
+          setTimeout(() => { try { bot.setControlState('sneak', false); } catch (_) {} }, 500);
+        }
+      }
+    } catch (_) {}
+  }, 25_000 + Math.floor(Math.random() * 15_000));
+}
+
 // ─── TẠO BOT (KẾT NỐI QUA PROXY) ────────────────────────────
 function createBot() {
   log(`🤖 Kết nối: bot → proxy(localhost:${PROXY_PORT}) → ${SERVER_HOST}:${SERVER_PORT}`);
@@ -332,6 +456,9 @@ function createBot() {
     log('Sẵn sàng! Chat: !pvp !pve !patrol !attack !follow !sleep !pos !status !stop !help');
     setupAutoRespawn();
     setupAutoSleep();
+    setupAutoEat();
+    setupAutoArmor();
+    setupAntiAFK();
     startAttackLoop();
   });
 
@@ -439,14 +566,72 @@ function createBot() {
 // ─── Dọn dẹp state ───────────────────────────────────────────
 function cleanupState() {
   stopAttackLoop(); stopPatrol();
-  pvpMode = pveMode = patrolMode = isSleeping = false;
+  pvpMode = pveMode = patrolMode = isSleeping = isEating = false;
   if (sleepCheckInterval) { clearInterval(sleepCheckInterval); sleepCheckInterval = null; }
+  if (autoEatInterval)    { clearInterval(autoEatInterval);    autoEatInterval = null; }
+  if (autoArmorInterval)  { clearInterval(autoArmorInterval);  autoArmorInterval = null; }
+  if (antiAfkInterval)    { clearInterval(antiAfkInterval);    antiAfkInterval = null; }
+}
+
+const healthServers = [];
+
+// ─── HTTP Health Server (UptimeRobot Keep-Alive) ────────────
+function startHealthServer() {
+  const portsToTry = Array.from(new Set([
+    parseInt(process.env.PORT || '0', 10),
+    parseInt(process.env.WEB_PORT || '0', 10),
+    5000,
+    3000,
+    8080
+  ].filter(p => p > 0)));
+
+  for (const port of portsToTry) {
+    const server = http.createServer((req, res) => {
+      const url = req.url || '/';
+      if (url === '/health' || url === '/healthz' || url === '/') {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({
+          status: 'ok',
+          uptime: Math.floor(process.uptime()),
+          timestamp: new Date().toISOString(),
+          bot: {
+            username: BOT_USERNAME,
+            connected: Boolean(bot && bot.entity),
+            hp: bot?.health ?? 0,
+            food: bot?.food ?? 0,
+            isEating,
+            pvp: pvpMode,
+            pve: pveMode,
+            patrol: patrolMode,
+            sleeping: isSleeping,
+            pos: bot?.entity?.position ? { x: Number(bot.entity.position.x.toFixed(1)), y: Number(bot.entity.position.y.toFixed(1)), z: Number(bot.entity.position.z.toFixed(1)) } : null
+          }
+        }));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: 'Not Found' }));
+      }
+    });
+
+    server.on('error', (err) => {
+      if (err.code !== 'EADDRINUSE') {
+        log(`⚠️ Lỗi HTTP Health Server (Port ${port}): ${err.message}`);
+      }
+    });
+
+    server.listen(port, '0.0.0.0', () => {
+      log(`🌐 HTTP Health Server đang lắng nghe cổng ${port} (Endpoints: /health, /healthz, /)`);
+    });
+
+    healthServers.push(server);
+  }
 }
 
 // ─── Thoát an toàn ───────────────────────────────────────────
 function shutdown(sig) {
   log(`${sig} → đang thoát...`);
   cleanupState();
+  healthServers.forEach(s => { try { s.close(); } catch (_) {} });
   try { bot?.quit('shutdown'); } catch (_) {}
   if (viaProxyProcess) { viaProxyProcess.kill(); }
   process.exit(0);
@@ -464,6 +649,8 @@ async function main() {
   log(`Proxy   : localhost:${PROXY_PORT}`);
   log(`Auth    : ${MC_AUTH} | Respawn:${AUTO_RESPAWN} | Sleep:${AUTO_SLEEP}`);
   log('──────────────────────────────────────────');
+
+  startHealthServer();
 
   try {
     await startViaProxy();

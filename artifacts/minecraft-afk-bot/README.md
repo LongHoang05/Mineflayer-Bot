@@ -12,6 +12,10 @@ Bot Minecraft Java Edition tự động chiến đấu, xây dựng bằng [Mine
 | **PvE** | Tự động tấn công mob thù địch (zombie, skeleton, creeper…) |
 | **Tuần tra** | Đi loanh quanh bán kính cấu hình được xung quanh điểm spawn |
 | **Đánh trả** | Tự động phản công khi bị tấn công |
+| **Auto-Eat** | Tự động ăn khi Hunger < 16 (tự chọn đồ ăn chín ngon nhất) |
+| **Auto-Armor** | Tự động soi túi đồ và mặc giáp xịn nhất + cầm Totem/Khiên ở tay phụ |
+| **Smart Anti-AFK** | Xoay góc nhìn, vung tay, cúi người ngẫu nhiên tránh bị server Kick AFK |
+| **Health Check Server** | Cổng HTTP (`/health`) phục vụ UptimeRobot ping giữ Repl thức 24/7 |
 | **Pathfinder** | Di chuyển thông minh, tránh vật cản, đuổi theo mục tiêu |
 | **Auto-reconnect** | Tự kết nối lại khi bị ngắt |
 

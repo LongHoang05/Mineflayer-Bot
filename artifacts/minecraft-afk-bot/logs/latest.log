@@ -1,0 +1,208 @@
+[02:43:42] [main/INFO] (ViaProxy) Initializing ViaProxy CLI v3.4.12 (git-ViaProxy-3.4.12:16c9b7b) (Injected using Launcher Agent)...
+[02:43:42] [main/INFO] (ViaProxy) Using java version: OpenJDK 64-Bit Server VM 19.0.2 (GraalVM Community) on Linux
+[02:43:42] [main/INFO] (ViaProxy) Available memory (bytes): 2088763392
+[02:43:42] [main/INFO] (ViaProxy) Working directory: /home/runner/workspace/artifacts/minecraft-afk-bot
+[02:43:42] [Via-Mappingloader-1/INFO] (ViaVersion) Loading block connection mappings ...
+[02:43:43] [main/INFO] (ViaBackwards) Loading translations...
+[02:43:43] [main/INFO] (ViaBackwards) Registering protocols...
+[02:43:43] [main/INFO] (ViaRewind) Registering protocols...
+[02:43:43] [main/INFO] (ViaBedrock) Started resource pack HTTP server on http://127.0.0.1:44733/
+[02:43:43] [main/INFO] (ViaVersion) ViaVersion detected lowest supported version by the proxy: 1.7.2-1.7.5 (4)
+[02:43:43] [main/INFO] (ViaVersion) Highest supported version by the proxy: 26.2 (776)
+[02:43:43] [main/WARN] (ViaVersion) Please update your Java runtime to at least Java 21 (your version is 19).
+[02:43:43] [main/WARN] (ViaVersion) At some point in the future, ViaVersion will no longer be compatible with this version of Java.
+[02:43:44] [Via Async Task 1/WARN] (ViaVersion) There is a newer plugin version available: 5.11.0, you're on: 5.10.1-SNAPSHOT
+[02:43:44] [main/INFO] (ViaProxy) ViaProxy started successfully!
+[02:43:44] [main/INFO] (ViaProxy) Starting proxy server
+[02:43:44] [main/INFO] (ViaProxy) Binding proxy server to REDACTED_IP:25568
+[02:43:44] [Via Async Scheduler 0/INFO] (ViaVersion) Finished mapping loading, shutting down loader executor.
+[02:43:45] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:59260 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:43:45] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [AUTH] (REDACTED_IP:59260 | CombatBot) Filling player data
+[02:43:45] [Netty EPOLL Client IO #0/ERROR] (ViaProxy) Caught unhandled netty exception
+io.netty.channel.unix.Errors$NativeIoException: recvAddress(..) failed with error(-104): Connection reset by peer
+[02:43:45] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:59260 | CombatBot) [0m[38;2;255;85;85mAn unhandled error occurred in your connection and it has been closed.
+[0m[38;2;85;255;85mError details for report:[0m[38;2;255;255;255m
+[0m[38;2;255;85;85mNativeIoException[0m[38;2;170;170;170m: [0m[38;2;255;255;255mrecvAddress(..) failed with error(-104): Connection reset by peer[0m
+[02:43:45] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:59260 | CombatBot) Connection closed
+[02:43:50] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:53146 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:43:52] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [AUTH] (REDACTED_IP:53146 | CombatBot) Filling player data
+[02:43:52] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:53146 | CombatBot) Connection closed
+[02:43:57] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:53162 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:43:58] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [AUTH] (REDACTED_IP:53162 | CombatBot) Filling player data
+[02:43:58] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:53162 | CombatBot) Connection closed
+[02:44:03] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:52890 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:44:18] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:52890 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:44:23] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:34064 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:44:38] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:34064 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:44:43] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:49538 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:44:58] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:49538 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:45:03] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:59484 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:45:18] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:59484 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:45:23] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:34886 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:45:34] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [AUTH] (REDACTED_IP:34886 | CombatBot) Filling player data
+[02:45:34] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:34886 | CombatBot) Connection closed
+[02:45:39] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:33936 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:45:40] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [AUTH] (REDACTED_IP:33936 | CombatBot) Filling player data
+[02:45:40] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:33936 | CombatBot) Connection closed
+[02:45:45] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:37540 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:46:00] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:37540 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:46:05] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:33054 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:46:16] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [AUTH] (REDACTED_IP:33054 | CombatBot) Filling player data
+[02:46:16] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:33054 | CombatBot) Connection closed
+[02:46:21] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:59866 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:46:22] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [AUTH] (REDACTED_IP:59866 | CombatBot) Filling player data
+[02:46:22] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:59866 | CombatBot) Connection closed
+[02:46:27] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:59878 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:46:42] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:59878 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:46:47] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:34966 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:46:58] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [AUTH] (REDACTED_IP:34966 | CombatBot) Filling player data
+[02:46:58] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:34966 | CombatBot) Connection closed
+[02:47:03] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:58172 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:47:09] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [AUTH] (REDACTED_IP:58172 | CombatBot) Filling player data
+[02:47:09] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:58172 | CombatBot) Connection closed
+[02:47:14] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:46898 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:47:25] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [AUTH] (REDACTED_IP:46898 | CombatBot) Filling player data
+[02:47:26] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:46898 | CombatBot) Connection closed
+[02:47:31] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:46098 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:47:31] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [AUTH] (REDACTED_IP:46098 | CombatBot) Filling player data
+[02:47:31] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:46098 | CombatBot) Connection closed
+[02:47:36] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:46108 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:47:51] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:46108 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:47:56] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:54278 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:48:07] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [AUTH] (REDACTED_IP:54278 | CombatBot) Filling player data
+[02:48:08] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:54278 | CombatBot) Connection closed
+[02:48:13] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:33212 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:48:13] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [AUTH] (REDACTED_IP:33212 | CombatBot) Filling player data
+[02:48:13] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:33212 | CombatBot) Connection closed
+[02:48:18] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:33218 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:48:33] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:33218 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:48:38] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:48294 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:48:49] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [AUTH] (REDACTED_IP:48294 | CombatBot) Filling player data
+[02:48:50] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:48294 | CombatBot) Connection closed
+[02:48:55] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:37164 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:48:55] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [AUTH] (REDACTED_IP:37164 | CombatBot) Filling player data
+[02:48:55] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:37164 | CombatBot) Connection closed
+[02:49:00] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:55512 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:49:11] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [AUTH] (REDACTED_IP:55512 | CombatBot) Filling player data
+[02:49:12] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:55512 | CombatBot) Connection closed
+[02:49:17] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:36714 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:49:32] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:36714 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:49:37] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:58568 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:49:37] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [AUTH] (REDACTED_IP:58568 | CombatBot) Filling player data
+[02:49:37] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:58568 | CombatBot) Connection closed
+[02:49:42] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:52616 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:49:53] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [AUTH] (REDACTED_IP:52616 | CombatBot) Filling player data
+[02:49:54] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:52616 | CombatBot) Connection closed
+[02:49:59] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:44470 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:49:59] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [AUTH] (REDACTED_IP:44470 | CombatBot) Filling player data
+[02:49:59] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:44470 | CombatBot) Connection closed
+[02:50:04] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:59078 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:50:15] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [AUTH] (REDACTED_IP:59078 | CombatBot) Filling player data
+[02:50:16] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:59078 | CombatBot) Connection closed
+[02:50:21] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:43990 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:50:23] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [AUTH] (REDACTED_IP:43990 | CombatBot) Filling player data
+[02:50:23] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:43990 | CombatBot) Connection closed
+[02:50:28] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:44006 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:50:39] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [AUTH] (REDACTED_IP:44006 | CombatBot) Filling player data
+[02:50:40] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:44006 | CombatBot) Connection closed
+[02:50:45] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:32968 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:51:00] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:32968 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:51:05] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:51116 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:51:20] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:51116 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:51:25] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:60580 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:51:40] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:60580 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:51:45] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:55162 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:52:00] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:55162 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:52:05] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:53378 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:52:20] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:53378 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:52:25] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:33910 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:52:40] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:33910 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:52:45] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:54446 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:53:00] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:54446 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:53:05] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:46934 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:53:20] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:46934 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:53:25] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:58422 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:53:40] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:58422 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:53:45] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:44872 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:53:56] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [AUTH] (REDACTED_IP:44872 | CombatBot) Filling player data
+[02:53:56] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:44872 | CombatBot) Connection closed
+[02:54:02] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:40684 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:54:02] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [AUTH] (REDACTED_IP:40684 | CombatBot) Filling player data
+[02:54:02] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:40684 | CombatBot) Connection closed
+[02:54:07] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:40696 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:54:22] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:40696 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:54:27] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:49948 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:54:38] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [AUTH] (REDACTED_IP:49948 | CombatBot) Filling player data
+[02:54:38] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:49948 | CombatBot) Connection closed
+[02:54:43] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:40112 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:54:44] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [AUTH] (REDACTED_IP:40112 | CombatBot) Filling player data
+[02:54:44] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:40112 | CombatBot) Connection closed
+[02:54:49] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:40114 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:55:00] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [AUTH] (REDACTED_IP:40114 | CombatBot) Filling player data
+[02:55:01] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:40114 | CombatBot) Connection closed
+[02:55:06] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:50666 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:55:06] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [AUTH] (REDACTED_IP:50666 | CombatBot) Filling player data
+[02:55:06] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:50666 | CombatBot) Connection closed
+[02:55:11] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:58476 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:55:22] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [AUTH] (REDACTED_IP:58476 | CombatBot) Filling player data
+[02:55:23] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:58476 | CombatBot) Connection closed
+[02:55:28] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:47332 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:55:28] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [AUTH] (REDACTED_IP:47332 | CombatBot) Filling player data
+[02:55:28] [Netty EPOLL Client IO #0/ERROR] (ViaProxy) Caught unhandled netty exception
+io.netty.channel.unix.Errors$NativeIoException: recvAddress(..) failed with error(-104): Connection reset by peer
+[02:55:28] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:47332 | CombatBot) [0m[38;2;255;85;85mAn unhandled error occurred in your connection and it has been closed.
+[0m[38;2;85;255;85mError details for report:[0m[38;2;255;255;255m
+[0m[38;2;255;85;85mNativeIoException[0m[38;2;170;170;170m: [0m[38;2;255;255;255mrecvAddress(..) failed with error(-104): Connection reset by peer[0m
+[02:55:28] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:47332 | CombatBot) Connection closed
+[02:55:33] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:48600 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:55:48] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:48600 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:55:53] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:53364 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:56:04] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [AUTH] (REDACTED_IP:53364 | CombatBot) Filling player data
+[02:56:04] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:53364 | CombatBot) Connection closed
+[02:56:10] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:49292 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:56:10] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [AUTH] (REDACTED_IP:49292 | CombatBot) Filling player data
+[02:56:10] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:49292 | CombatBot) Connection closed
+[02:56:15] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:32964 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:56:26] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [AUTH] (REDACTED_IP:32964 | CombatBot) Filling player data
+[02:56:27] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:32964 | CombatBot) Connection closed
+[02:56:32] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:40506 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:56:32] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [AUTH] (REDACTED_IP:40506 | CombatBot) Filling player data
+[02:56:32] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:40506 | CombatBot) Connection closed
+[02:56:37] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:40520 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:56:48] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [AUTH] (REDACTED_IP:40520 | CombatBot) Filling player data
+[02:56:49] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:40520 | CombatBot) Connection closed
+[02:56:54] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:52962 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:56:54] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [AUTH] (REDACTED_IP:52962 | CombatBot) Filling player data
+[02:56:54] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:52962 | CombatBot) Connection closed
+[02:56:59] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:52970 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:57:14] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [PROXY KICK] (REDACTED_IP:52970 | null) [0m[38;2;255;85;85mCould not connect to the backend server![0m
+[02:57:19] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:35118 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:57:30] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [AUTH] (REDACTED_IP:35118 | CombatBot) Filling player data
+[02:57:31] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:35118 | CombatBot) Connection closed
+[02:57:36] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:46272 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:57:36] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [AUTH] (REDACTED_IP:46272 | CombatBot) Filling player data
+[02:57:36] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:46272 | CombatBot) Connection closed
+[02:57:41] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:37112 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:57:52] [Netty EPOLL Server Child IO #3/INFO] (ViaProxy) [AUTH] (REDACTED_IP:37112 | CombatBot) Filling player data
+[02:57:53] [Netty EPOLL Client IO #3/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:37112 | CombatBot) Connection closed
+[02:57:58] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:59896 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:57:58] [Netty EPOLL Server Child IO #4/INFO] (ViaProxy) [AUTH] (REDACTED_IP:59896 | CombatBot) Filling player data
+[02:57:58] [Netty EPOLL Client IO #4/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:59896 | CombatBot) Connection closed
+[02:58:03] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:60468 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:58:14] [Netty EPOLL Server Child IO #5/INFO] (ViaProxy) [AUTH] (REDACTED_IP:60468 | CombatBot) Filling player data
+[02:58:15] [Netty EPOLL Client IO #5/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:60468 | CombatBot) Connection closed
+[02:58:20] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:50984 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:58:20] [Netty EPOLL Server Child IO #6/INFO] (ViaProxy) [AUTH] (REDACTED_IP:50984 | CombatBot) Filling player data
+[02:58:20] [Netty EPOLL Client IO #6/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:50984 | CombatBot) Connection closed
+[02:58:25] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:42926 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:58:36] [Netty EPOLL Server Child IO #7/INFO] (ViaProxy) [AUTH] (REDACTED_IP:42926 | CombatBot) Filling player data
+[02:58:37] [Netty EPOLL Client IO #7/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:42926 | CombatBot) Connection closed
+[02:58:42] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:38354 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:58:42] [Netty EPOLL Server Child IO #0/INFO] (ViaProxy) [AUTH] (REDACTED_IP:38354 | CombatBot) Filling player data
+[02:58:42] [Netty EPOLL Client IO #0/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:38354 | CombatBot) Connection closed
+[02:58:47] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:38356 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:58:58] [Netty EPOLL Server Child IO #1/INFO] (ViaProxy) [AUTH] (REDACTED_IP:38356 | CombatBot) Filling player data
+[02:58:59] [Netty EPOLL Client IO #1/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:38356 | CombatBot) Connection closed
+[02:59:04] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [CONNECT] (REDACTED_IP:41632 | null) [1.21.5 <-> 26.2] Connecting to CLgamingTV.aternos.me:36025
+[02:59:04] [Netty EPOLL Server Child IO #2/INFO] (ViaProxy) [AUTH] (REDACTED_IP:41632 | CombatBot) Filling player data
+[02:59:04] [Netty EPOLL Client IO #2/INFO] (ViaProxy) [DISCONNECT] (REDACTED_IP:41632 | CombatBot) Connection closed
