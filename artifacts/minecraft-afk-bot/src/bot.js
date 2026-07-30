@@ -117,12 +117,15 @@ async function startViaProxy() {
   viaProxyProcess = spawn('java', [
     '-jar', VIAPROXY_JAR,
     'cli',
-    '--target-address',  `${SERVER_HOST}:${SERVER_PORT}`,
-    '--target-version',  SERVER_VERSION,
-    '--bind-address',    `0.0.0.0:${PROXY_PORT}`,
-    '--auth-method',     'NONE',
-    '--proxy-online-mode', 'false',
-    '--log-ips',         'false',
+    '--target-address',                   `${SERVER_HOST}:${SERVER_PORT}`,
+    '--target-version',                   SERVER_VERSION,
+    '--bind-address',                     `0.0.0.0:${PROXY_PORT}`,
+    '--auth-method',                      'NONE',
+    '--proxy-online-mode',                'false',
+    '--ignore-protocol-translation-errors', 'true',
+    '--suppress-client-protocol-errors',  'true',
+    '--connect-timeout',                  '15000',
+    '--log-ips',                          'false',
   ], { stdio: ['ignore', 'pipe', 'pipe'] });
 
   // Pipe log ViaProxy ra console với prefix
