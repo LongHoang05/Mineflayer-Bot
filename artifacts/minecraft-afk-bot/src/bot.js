@@ -242,6 +242,11 @@ function cleanupState() {
   if (autoEatInterval) { clearInterval(autoEatInterval); autoEatInterval = null; }
   if (antiAfkInterval) { clearInterval(antiAfkInterval); antiAfkInterval = null; }
   if (keepAlivePulseInterval) { clearInterval(keepAlivePulseInterval); keepAlivePulseInterval = null; }
+  if (bot) {
+    try { bot.removeAllListeners(); } catch (_) {}
+    try { bot.end(); } catch (_) {}
+    bot = null;
+  }
 }
 
 const healthServers = [];
