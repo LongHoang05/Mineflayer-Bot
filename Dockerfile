@@ -14,6 +14,9 @@ COPY . .
 # Cài đặt dependencies
 RUN pnpm install
 
+# Giới hạn RAM Node.js tối đa 128MB
+ENV NODE_OPTIONS="--max-old-space-size=128"
+
 # Biến môi trường mặc định cho Server Aternos
 ENV MC_HOST=CLgamingTV.aternos.me
 ENV MC_PORT=36025
