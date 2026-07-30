@@ -1,15 +1,14 @@
-# [Project name]
+# Minecraft AFK Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A configurable AFK bot for Minecraft Java Edition using Node.js and Mineflayer. Connects to a server, holds position, auto-reconnects, and responds to in-game chat commands.
 
 ## Run & Operate
 
+- `pnpm --filter @workspace/minecraft-afk-bot start` — run the AFK bot (or use the **AFK Bot** workflow)
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Bot config: `artifacts/minecraft-afk-bot/.env` — server host, port, username, version, auth mode
 
 ## Stack
 
