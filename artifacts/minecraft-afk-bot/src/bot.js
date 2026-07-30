@@ -14,13 +14,13 @@ config();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VIAPROXY_JAR = join(__dirname, '..', 'viaproxy', 'ViaProxy.jar');
 
-const SERVER_HOST    = process.env.MC_HOST          || 'CLgamingTV.aternos.me';
-const SERVER_PORT    = parseInt(process.env.MC_PORT || '36025', 10);
-const BOT_USERNAME   = process.env.MC_USERNAME      || 'CombatBot';
-const SERVER_VERSION = process.env.MC_VERSION       || '26.2';
-const BOT_VERSION    = process.env.BOT_VERSION      || '1.21.5';
-const MC_AUTH        = process.env.MC_AUTH          || 'offline';
-const PROXY_PORT     = parseInt(process.env.PROXY_PORT || '25568', 10);
+const SERVER_HOST = process.env.MC_HOST || 'CLgamingTV.aternos.me';
+const SERVER_PORT = parseInt(process.env.MC_PORT || '36025', 10);
+const BOT_USERNAME = process.env.MC_USERNAME || 'CombatBot';
+const SERVER_VERSION = process.env.MC_VERSION || '26.2';
+const BOT_VERSION = process.env.BOT_VERSION || '1.21.5';
+const MC_AUTH = process.env.MC_AUTH || 'offline';
+const PROXY_PORT = parseInt(process.env.PROXY_PORT || '25568', 10);
 const RECONNECT_DELAY_MS = parseInt(process.env.RECONNECT_DELAY || '5000', 10);
 
 let bot = null;
@@ -63,15 +63,15 @@ async function startViaProxy() {
     '-Xmx320m',
     '-jar', VIAPROXY_JAR,
     'cli',
-    '--target-address',                   `${SERVER_HOST}:${SERVER_PORT}`,
-    '--target-version',                   SERVER_VERSION,
-    '--bind-address',                     `0.0.0.0:${PROXY_PORT}`,
-    '--auth-method',                      'NONE',
-    '--proxy-online-mode',                'false',
+    '--target-address', `${SERVER_HOST}:${SERVER_PORT}`,
+    '--target-version', SERVER_VERSION,
+    '--bind-address', `0.0.0.0:${PROXY_PORT}`,
+    '--auth-method', 'NONE',
+    '--proxy-online-mode', 'false',
     '--ignore-protocol-translation-errors', 'true',
-    '--suppress-client-protocol-errors',  'true',
-    '--connect-timeout',                  '15000',
-    '--log-ips',                          'false',
+    '--suppress-client-protocol-errors', 'true',
+    '--connect-timeout', '15000',
+    '--log-ips', 'false',
   ], { stdio: ['ignore', 'pipe', 'pipe'] });
 
   viaProxyProcess.stdout.on('data', (d) => {
@@ -130,7 +130,7 @@ async function checkAndAutoEat() {
     log(`🍖 Tự động ăn ${foodItem.name} (Hunger: ${hunger}/20)...`);
     await bot.equip(foodItem, 'hand');
     await bot.consume();
-  } catch (_) {} finally {
+  } catch (_) { } finally {
     isEating = false;
   }
 }
@@ -156,13 +156,13 @@ function setupAntiAFK() {
       } else {
         if (Math.random() > 0.5) {
           bot.setControlState('jump', true);
-          setTimeout(() => { try { bot.setControlState('jump', false); } catch (_) {} }, 150);
+          setTimeout(() => { try { bot.setControlState('jump', false); } catch (_) { } }, 150);
         } else {
           bot.setControlState('sneak', true);
-          setTimeout(() => { try { bot.setControlState('sneak', false); } catch (_) {} }, 500);
+          setTimeout(() => { try { bot.setControlState('sneak', false); } catch (_) { } }, 500);
         }
       }
-    } catch (_) {}
+    } catch (_) { }
   }, 20_000 + Math.floor(Math.random() * 15_000));
 }
 
@@ -187,7 +187,7 @@ function createBot() {
   // Tự động hồi sinh khi chết
   bot.on('death', () => {
     log('💀 Bot bị chết — tự động hồi sinh sau 1 giây...');
-    setTimeout(() => { try { bot.respawn(); } catch (_) {} }, 1000);
+    setTimeout(() => { try { bot.respawn(); } catch (_) { } }, 1000);
   });
 
   // Chat commands đơn giản
@@ -209,12 +209,18 @@ function createBot() {
   });
 
   bot.on('kicked', (r) => { log(`✗ Bị kick: ${r}`); cleanupState(); });
-  bot.on('error', (e) => log(`✗ Lỗi: ${e.message}`));
+  bot.on('error', (e) => {
+    if (e?.code === 'ECONNRESET' || e?.message?.includes('ECONNRESET')) {
+      log('⚠️ Mạng Aternos ngắt kết nối tạm thời (ECONNRESET)');
+    } else {
+      log(`✗ Lỗi: ${e.message}`);
+    }
+  });
   bot.on('end', (reason) => {
-    log(`✗ Mất kết nối (${reason || 'không rõ'}). Tự kết nối lại sau ${RECONNECT_DELAY_MS / 1000}s...`);
+    log(`✗ Mất kết nối (${reason || 'socketClosed'}). Tự kết nối lại sau ${RECONNECT_DELAY_MS / 1000}s...`);
     cleanupState();
     setTimeout(async () => {
-      try { await startViaProxy(); } catch (_) {}
+      try { await startViaProxy(); } catch (_) { }
       createBot();
     }, RECONNECT_DELAY_MS);
   });
@@ -256,7 +262,7 @@ function startHealthServer() {
         res.end(JSON.stringify({ error: 'Not Found' }));
       }
     });
-    server.on('error', () => {});
+    server.on('error', () => { });
     server.listen(port, '0.0.0.0', () => {
       log(`🌐 HTTP Health Server lắng nghe cổng ${port}`);
     });
@@ -267,11 +273,18 @@ function startHealthServer() {
 function shutdown(sig) {
   log(`${sig} → đang thoát...`);
   cleanupState();
-  healthServers.forEach(s => { try { s.close(); } catch (_) {} });
-  try { bot?.quit('shutdown'); } catch (_) {}
+  healthServers.forEach(s => { try { s.close(); } catch (_) { } });
+  try { bot?.quit('shutdown'); } catch (_) { }
   if (viaProxyProcess) { viaProxyProcess.kill(); }
   process.exit(0);
 }
+process.on('uncaughtException', (err) => {
+  if (err?.code === 'ECONNRESET' || err?.message?.includes('ECONNRESET')) {
+    log('⚠️ Mạng Aternos ngắt kết nối tạm thời (ECONNRESET)');
+    return;
+  }
+  log(`⚠️ Lỗi hệ thống: ${err.message}`);
+});
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
